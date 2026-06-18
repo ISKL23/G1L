@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download G1L — ISKL Gothic 1 Remake Launcher</title>
+<meta name="description" content="Download G1L — the portable mod launcher for Gothic 1 Remake. Free, no installation: unzip and run.">
+<meta property="og:title" content="Download G1L — ISKL Gothic 1 Remake Launcher">
+<meta property="og:description" content="The latest release for Gothic 1 Remake. Free, portable, no installation — just unzip and run.">
+<meta property="og:image" content="assets/banner.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#100b08">
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#100b08; --bg2:#16100a; --panel:#1b140d; --panel2:#221910;
+    --line:#2c2117; --line2:#3c2e1f;
+    --text:#e9ddce; --muted:#a4937e; --dim:#6e5f51;
+    --gold:#d8a24a; --gold2:#f0c87f; --rose:#d3a89c; --green:#85b066;
+    --shadow:0 26px 64px -22px rgba(0,0,0,.8);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0; background:#100b08;}
+  ::selection{background:rgba(216,162,74,.32); color:#fff;}
+  @keyframes g1lFloat{0%,100%{opacity:.55; transform:translateY(0)}50%{opacity:.9; transform:translateY(-14px)}}
+  @keyframes g1lPop{0%{opacity:0; transform:translateY(16px) scale(.97)}100%{opacity:1; transform:translateY(0) scale(1)}}
+  @keyframes g1lFade{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+
+<div style="font-family:'Manrope',system-ui,-apple-system,Roboto,sans-serif; color:var(--text); background:var(--bg); background-image:radial-gradient(1100px 580px at 78% -12%, rgba(216,162,74,.12), transparent 60%), radial-gradient(900px 520px at 6% 112%, rgba(150,68,34,.10), transparent 60%); line-height:1.65; -webkit-font-smoothing:antialiased; min-height:100vh; display:flex; flex-direction:column;">
+
+  <!-- ====================== ШАПКА ====================== -->
+  <header style="position:sticky; top:0; z-index:50; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); background:rgba(16,11,8,.72); border-bottom:1px solid var(--line);">
+    <div style="max-width:1120px; margin:0 auto; padding:0 24px; display:flex; align-items:center; gap:18px; height:66px;">
+      <a href="index.html" style="display:flex; align-items:center; gap:11px; font-family:'Cinzel',serif; font-weight:700; font-size:19px; letter-spacing:1.5px; color:var(--text); text-decoration:none;">
+        <img src="assets/logo.png" alt="G1L" onerror="this.style.display='none'" style="height:30px; width:auto; filter:drop-shadow(0 2px 8px rgba(0,0,0,.6));">G1L
+      </a>
+      <nav style="margin-left:auto; display:flex; gap:26px; align-items:center;">
+        <a href="index.html#features" style="color:var(--muted); font-size:14px; font-weight:600; text-decoration:none; transition:color .2s;" style-hover="color:var(--text)">Features</a>
+        <a href="index.html#screens" style="color:var(--muted); font-size:14px; font-weight:600; text-decoration:none; transition:color .2s;" style-hover="color:var(--text)">Screenshots</a>
+        <a href="index.html" style="display:inline-flex; align-items:center; gap:7px; color:var(--muted); font-size:14px; font-weight:600; text-decoration:none; transition:color .2s;" style-hover="color:var(--text)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Back to site
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ====================== ОСНОВНОЙ БЛОК СКАЧИВАНИЯ ====================== -->
+  <main style="flex:1; position:relative; overflow:hidden;">
+    <!-- мягкое свечение -->
+    <div style="position:absolute; top:-100px; left:50%; transform:translateX(-50%); width:640px; height:400px; background:radial-gradient(closest-side, rgba(216,162,74,.16), transparent 70%); animation:g1lFloat 9s ease-in-out infinite; pointer-events:none;"></div>
+
+    <div style="position:relative; max-width:880px; margin:0 auto; padding:84px 24px 72px; text-align:center;">
+      <div style="display:inline-flex; align-items:center; gap:11px; font-size:12px; font-weight:700; letter-spacing:.26em; text-transform:uppercase; color:var(--gold); margin-bottom:22px; white-space:nowrap;">
+        <span style="width:26px; height:1px; background:var(--gold); opacity:.6;"></span>Download<span style="width:26px; height:1px; background:var(--gold); opacity:.6;"></span>
+      </div>
+      <h1 style="font-family:'Cinzel',serif; font-weight:700; font-size:clamp(32px,5.4vw,56px); letter-spacing:1px; line-height:1.12; margin:0;">Get <span style="color:var(--gold2);">G1L</span></h1>
+      <p style="color:var(--muted); max-width:540px; margin:18px auto 0; font-size:16px;">The latest release for Gothic 1 Remake. Free, portable, no installation — just unzip and run.</p>
+
+      <!-- главная кнопка: открывает релиз на GitHub в новой вкладке и показывает плашку поддержки -->
+      <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:34px;">
+        <a id="dlbtn" href="https://github.com/ISKL23/G1L-Releases/releases/latest" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:10px; font-weight:700; font-size:16px; text-decoration:none; cursor:pointer; border-radius:13px; padding:16px 30px; background:linear-gradient(180deg,var(--gold2),var(--gold)); color:#231405; box-shadow:0 14px 38px -10px rgba(216,162,74,.55); transition:transform .2s, filter .2s, box-shadow .2s;" style-hover="filter:brightness(1.06); transform:translateY(-2px); box-shadow:0 20px 50px -10px rgba(216,162,74,.65)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Download latest release
+        </a>
+        <a href="https://www.nexusmods.com/gothic1remake/mods/37" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:9px; font-weight:600; font-size:16px; text-decoration:none; cursor:pointer; border-radius:13px; padding:16px 28px; background:rgba(255,255,255,.025); border:1px solid var(--line2); color:var(--text); transition:border-color .25s, color .25s, transform .2s;" style-hover="border-color:var(--gold); color:var(--gold2); transform:translateY(-2px)">View on Nexus Mods</a>
+      </div>
+
+      <!-- факты -->
+      <div style="display:flex; gap:10px; align-items:center; margin-top:28px; flex-wrap:wrap; justify-content:center;">
+        <span style="font-size:12.5px; color:var(--muted); background:rgba(255,255,255,.02); border:1px solid var(--line); padding:6px 13px; border-radius:999px;"><b style="color:var(--green);">✓</b> Single portable .exe — no .NET</span>
+        <span style="font-size:12.5px; color:var(--muted); background:rgba(255,255,255,.02); border:1px solid var(--line); padding:6px 13px; border-radius:999px;">Windows 10 / 11 · 64-bit</span>
+        <span style="font-size:12.5px; color:var(--muted); background:rgba(255,255,255,.02); border:1px solid var(--line); padding:6px 13px; border-radius:999px;">11 languages</span>
+        <span style="font-size:12.5px; color:var(--muted); background:rgba(255,255,255,.02); border:1px solid var(--line); padding:6px 13px; border-radius:999px;">Steam &amp; Epic</span>
+      </div>
+    </div>
+
+    <!-- быстрый старт после скачивания -->
+    <div style="max-width:880px; margin:0 auto; padding:0 24px 84px;">
+      <div style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:30px;">
+        <h2 style="font-family:'Cinzel',serif; font-weight:600; font-size:22px; letter-spacing:.4px; margin:0 0 22px; text-align:center;">After the download</h2>
+        <div style="display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+          <div style="display:flex; gap:14px; align-items:flex-start;"><div style="flex:0 0 36px; height:36px; border-radius:10px; display:grid; place-items:center; font-family:'Cinzel',serif; font-weight:700; font-size:15px; background:rgba(216,162,74,.12); color:var(--gold2); border:1px solid var(--line2);">1</div><p style="margin:6px 0 0; color:var(--text); font-size:14.5px;">Unzip anywhere and run <b style="color:var(--text);">ISKLLauncher.App.exe</b> — the game is detected automatically.</p></div>
+          <div style="display:flex; gap:14px; align-items:flex-start;"><div style="flex:0 0 36px; height:36px; border-radius:10px; display:grid; place-items:center; font-family:'Cinzel',serif; font-weight:700; font-size:15px; background:rgba(216,162,74,.12); color:var(--gold2); border:1px solid var(--line2);">2</div><p style="margin:6px 0 0; color:var(--text); font-size:14.5px;">Install <b style="color:var(--text);">UE4SS</b> from Settings if you plan to use Lua/DLL mods.</p></div>
+          <div style="display:flex; gap:14px; align-items:flex-start;"><div style="flex:0 0 36px; height:36px; border-radius:10px; display:grid; place-items:center; font-family:'Cinzel',serif; font-weight:700; font-size:15px; background:rgba(216,162,74,.12); color:var(--gold2); border:1px solid var(--line2);">3</div><p style="margin:6px 0 0; color:var(--text); font-size:14.5px;">Drag a mod onto the window, enable it, and hit <b style="color:var(--text);">PLAY</b>.</p></div>
+        </div>
+        <p style="text-align:center; margin:24px 0 0; color:var(--muted); font-size:14px;">Trouble? Read the <a href="https://www.nexusmods.com/gothic1remake/articles/7" target="_blank" rel="noopener" style="color:var(--gold);" style-hover="color:var(--gold2)">Troubleshooting &amp; FAQ</a>.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ====================== ПОДВАЛ ====================== -->
+  <footer style="border-top:1px solid var(--line); padding:44px 0 52px; text-align:center; background:var(--bg2);">
+    <div style="max-width:1120px; margin:0 auto; padding:0 24px;">
+      <p style="font-family:'Cinzel',serif; font-weight:700; letter-spacing:1px; margin:0 0 18px; font-size:16px;">By ISKL</p>
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <a href="https://www.nexusmods.com/gothic1remake/mods/37" target="_blank" rel="noopener" style="text-decoration:none; cursor:pointer; border-radius:11px; padding:11px 20px; background:rgba(255,255,255,.025); border:1px solid var(--line2); color:var(--text); font-weight:600; font-size:14px; transition:border-color .25s, color .25s;" style-hover="border-color:var(--gold); color:var(--gold2)">Nexus</a>
+        <a href="https://github.com/ISKL23/G1L-Releases" target="_blank" rel="noopener" style="text-decoration:none; cursor:pointer; border-radius:11px; padding:11px 20px; background:rgba(255,255,255,.025); border:1px solid var(--line2); color:var(--text); font-weight:600; font-size:14px; transition:border-color .25s, color .25s;" style-hover="border-color:var(--gold); color:var(--gold2)">GitHub</a>
+        <a href="https://boosty.to/iskl" target="_blank" rel="noopener" style="text-decoration:none; cursor:pointer; border-radius:11px; padding:11px 20px; background:rgba(255,255,255,.025); border:1px solid var(--line2); color:var(--text); font-weight:600; font-size:14px; transition:border-color .25s, color .25s;" style-hover="border-color:var(--gold); color:var(--gold2)">Boosty</a>
+        <a href="https://www.donationalerts.com/r/isklgame" target="_blank" rel="noopener" style="text-decoration:none; cursor:pointer; border-radius:11px; padding:11px 20px; background:rgba(255,255,255,.025); border:1px solid var(--line2); color:var(--text); font-weight:600; font-size:14px; transition:border-color .25s, color .25s;" style-hover="border-color:var(--gold); color:var(--gold2)">Donate</a>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ====================== ПЛАШКА ПОДДЕРЖКИ (после скачивания) ====================== -->
+<div id="donate" onclick="this.style.display='none'" style="display:none; position:fixed; inset:0; background:rgba(8,5,3,.8); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:24px; z-index:200; animation:g1lFade .25s ease;">
+  <!-- stopPropagation: клик внутри карточки не закрывает плашку -->
+  <div onclick="event.stopPropagation()" style="position:relative; max-width:440px; width:100%; background:linear-gradient(170deg,var(--panel2),var(--bg2)); border:1px solid var(--line2); border-radius:20px; padding:38px 34px 32px; text-align:center; box-shadow:var(--shadow); animation:g1lPop .3s cubic-bezier(.2,.8,.2,1);">
+    <button onclick="document.getElementById('donate').style.display='none'" aria-label="Close" style="position:absolute; top:16px; right:16px; width:34px; height:34px; display:grid; place-items:center; border-radius:9px; background:rgba(255,255,255,.03); border:1px solid var(--line2); color:var(--muted); cursor:pointer; transition:color .2s, border-color .2s;" style-hover="color:var(--text); border-color:var(--gold)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <!-- сердце-эмблема (простая геометрия) -->
+    <div style="width:62px; height:62px; margin:0 auto 20px; border-radius:16px; display:grid; place-items:center; background:rgba(216,162,74,.12); border:1px solid var(--line2);">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+    </div>
+    <div style="font-size:12px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); margin-bottom:10px;">Your download has started</div>
+    <h3 style="font-family:'Cinzel',serif; font-weight:600; font-size:24px; letter-spacing:.4px; margin:0 0 12px; color:var(--text);">Thank you!</h3>
+    <p style="color:var(--muted); margin:0 0 26px; font-size:15px;">G1L is free and always will be. If it saved you time, a one-time donation helps support development &amp; new apps.</p>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <a href="https://www.donationalerts.com/r/isklgame" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; justify-content:center; gap:9px; font-weight:700; font-size:15px; text-decoration:none; cursor:pointer; border-radius:12px; padding:14px 22px; background:linear-gradient(180deg,var(--gold2),var(--gold)); color:#231405; box-shadow:0 12px 30px -10px rgba(216,162,74,.5); transition:transform .2s, filter .2s;" style-hover="filter:brightness(1.06); transform:translateY(-1px)">Make a one-time donation</a>
+      <button onclick="document.getElementById('donate').style.display='none'" style="font-weight:600; font-size:14px; cursor:pointer; border-radius:12px; padding:12px 22px; background:transparent; border:1px solid var(--line2); color:var(--muted); transition:color .2s, border-color .2s;" style-hover="color:var(--text); border-color:var(--line2)">Maybe later</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // style-hover -> наведение, с восстановлением исходных инлайн-значений
+  document.querySelectorAll('[style-hover]').forEach(function(el){
+    var decls = el.getAttribute('style-hover').split(';').map(function(s){return s.trim();}).filter(Boolean)
+      .map(function(d){ var i=d.indexOf(':'); return [d.slice(0,i).trim(), d.slice(i+1).trim()]; });
+    var saved = null;
+    el.addEventListener('mouseenter', function(){
+      saved = decls.map(function(p){ return [p[0], el.style.getPropertyValue(p[0])]; });
+      decls.forEach(function(p){ el.style.setProperty(p[0], p[1]); });
+    });
+    el.addEventListener('mouseleave', function(){
+      if (saved) saved.forEach(function(p){ el.style.setProperty(p[0], p[1]); });
+    });
+  });
+
+  // Клик по «Download» открывает релиз в новой вкладке (через href) и показывает плашку поддержки
+  var donate = document.getElementById('donate');
+  var dl = document.getElementById('dlbtn');
+  if (dl) dl.addEventListener('click', function(){ donate.style.display = 'flex'; });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') donate.style.display = 'none'; });
+})();
+</script>
+</body>
+</html>

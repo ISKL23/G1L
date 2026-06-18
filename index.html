@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1L — ISKL Gothic 1 Remake Launcher</title>
+<meta name="description" content="G1L is a portable mod launcher and manager built specifically for Gothic 1 Remake. Drag-and-drop install for every mod type — UE4SS, paks, BP plugins, ReShade, Engine.ini and more.">
+<meta property="og:title" content="G1L — ISKL Gothic 1 Remake Launcher">
+<meta property="og:description" content="The mod manager built specifically for Gothic 1 Remake. Lightweight, fast, fully portable.">
+<meta property="og:image" content="assets/banner.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#100b08">
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Палитра и токены — заданы один раз, дальше используются через var() в инлайн-стилях */
+  :root{
+    --bg:#100b08; --bg2:#16100a; --panel:#1b140d; --panel2:#221910;
+    --line:#2c2117; --line2:#3c2e1f;
+    --text:#e9ddce; --muted:#a4937e; --dim:#6e5f51;
+    --gold:#d8a24a; --gold2:#f0c87f; --rose:#d3a89c; --green:#85b066;
+    --shadow:0 26px 64px -22px rgba(0,0,0,.8);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0; background:#100b08;}
+  ::selection{background:rgba(216,162,74,.32); color:#fff;}
+  /* мягкое «дыхание» свечения за героем */
+  @keyframes g1lFloat{0%,100%{opacity:.55; transform:translateY(0)}50%{opacity:.9; transform:translateY(-14px)}}
+</style>
+</head>
+<body>
+
+<!-- Корневой контейнер: задаёт фон, базовый шрифт и атмосферное свечение -->
+<div style="font-family:'Manrope',system-ui,-apple-system,Roboto,sans-serif; color:var(--text); background:var(--bg); background-image:radial-gradient(1200px 620px at 78% -10%, rgba(216,162,74,.10), transparent 60%), radial-gradient(900px 540px at 6% 110%, rgba(150,68,34,.10), transparent 60%); line-height:1.65; -webkit-font-smoothing:antialiased; min-height:100vh; overflow-x:hidden;">
+
+  <!-- Тонкая золотая полоса прогресса прокрутки вверху страницы -->
+  <div id="scrollbar" style="position:fixed; top:0; left:0; height:2px; z-index:60; background:linear-gradient(90deg,var(--gold),var(--gold2)); box-shadow:0 0 12px rgba(216,162,74,.6); transition:width .12s linear; width:0%;"></div>
+
+  <!-- ====================== ШАПКА / НАВИГАЦИЯ ====================== -->
+  <header style="position:sticky; top:0; z-index:50; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); background:rgba(16,11,8,.72); border-bottom:1px solid var(--line);">
+    <div style="max-width:1120px; margin:0 auto; padding:0 24px; display:flex; align-items:center; gap:18px; height:66px;">
+      <!-- Бренд -->
+      <span style="display:flex; align-items:center; gap:11px; font-family:'Cinzel',serif; font-weight:700; font-size:19px; letter-spacing:1.5px; color:var(--text);">
+        <img src="assets/logo.png" alt="G1L" onerror="this.style.display='none'" style="height:30px; width:auto; filter:drop-shadow(0 2px 8px rgba(0,0,0,.6));">G1L
+      </span>
+      <!-- Ссылки -->
+      <nav style="margin-left:auto; display:flex; gap:26px; align-items:center;">
+        <a href="#features" style="color:var(--muted); font-size:14px; font-weight:600; text-decoration:none; transition:color .2s;" style-hover="color:var(--text)">Features</a>
+        <a href="#screens" style="color:var(--muted); font-size:14px; font-weight:600; text-decoration:none; transition:color .2s;" style-hover="color:var(--text)">Screenshots</a>
+        <a href="#how" style="color:var(--muted); font-size:14px; font-weight:600; text-decoration:none; transition:color .2s;" style-hover="color:var(--text)">How to use</a>
+        <a href="download.html" style="display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:14px; text-decoration:none; cursor:pointer; border-radius:10px; padding:10px 17px; background:linear-gradient(180deg,var(--gold2),var(--gold)); color:#231405; box-shadow:0 8px 22px -8px rgba(216,162,74,.5); transition:transform .2s, filter .2s, box-shadow .2s;" style-hover="filter:brightness(1.06); transform:translateY(-1px); box-shadow:0 14px 30px -8px rgba(216,162,74,.6)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Download
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ====================== ГЕРОЙ ====================== -->
+  <section style="position:relative; overflow:hidden; border-bottom:1px solid var(--line);">
+    <!-- Фоновый баннер с затемнением. Если картинки нет — остаётся атмосферный градиент -->
+    <div style="position:absolute; inset:0; background:url('assets/banner.png') center/cover no-repeat; opacity:.28; filter:saturate(1.05);"></div>
+    <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(16,11,8,.5) 0%, rgba(16,11,8,.82) 58%, var(--bg) 100%);"></div>
+    <!-- мягкое золотое свечение -->
+    <div style="position:absolute; top:-120px; left:50%; transform:translateX(-50%); width:680px; height:420px; background:radial-gradient(closest-side, rgba(216,162,74,.18), transparent 70%); animation:g1lFloat 9s ease-in-out infinite; pointer-events:none;"></div>
+
+    <div style="position:relative; max-width:1120px; margin:0 auto; padding:104px 24px 84px; text-align:center;">
+      <!-- надзаголовок-эйрбров -->
+      <div style="display:inline-flex; align-items:center; gap:11px; font-size:12px; font-weight:700; letter-spacing:.26em; text-transform:uppercase; color:var(--gold); margin-bottom:22px; white-space:nowrap;">
+        <span style="width:26px; height:1px; background:var(--gold); opacity:.6;"></span>Unreal Engine 5 · Mod Launcher<span style="width:26px; height:1px; background:var(--gold); opacity:.6;"></span>
+      </div>
+      <h1 style="font-family:'Cinzel',serif; font-weight:700; font-size:clamp(36px,6.2vw,66px); letter-spacing:1px; line-height:1.1; margin:0; text-shadow:0 4px 30px rgba(0,0,0,.7);">
+        ISKL <span style="color:var(--gold2);">Gothic 1 Remake</span><br>Launcher
+      </h1>
+      <div style="color:var(--rose); font-style:italic; font-size:clamp(15px,2.1vw,20px); margin-top:18px; font-family:'Cinzel',serif; font-weight:500;">A mod launcher &amp; manager for Gothic 1 Remake</div>
+      <!-- поддерживаемые языки -->
+      <div title="11 languages" style="margin:26px 0 6px; font-size:22px; letter-spacing:5px; filter:saturate(.92);">🇬🇧 🇺🇸 🇩🇪 🇫🇷 🇮🇹 🇪🇸 🇵🇱 🇧🇷 🇨🇳 🇯🇵 🇷🇺</div>
+
+      <!-- кнопки -->
+      <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:30px;">
+        <a href="download.html" style="display:inline-flex; align-items:center; gap:9px; font-weight:700; font-size:15px; text-decoration:none; cursor:pointer; border-radius:12px; padding:14px 26px; background:linear-gradient(180deg,var(--gold2),var(--gold)); color:#231405; box-shadow:0 12px 34px -10px rgba(216,162,74,.5); transition:transform .2s, filter .2s, box-shadow .2s;" style-hover="filter:brightness(1.06); transform:translateY(-2px); box-shadow:0 18px 44px -10px rgba(216,162,74,.62)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Download G1L
+        </a>
+        <a href="https://www.nexusmods.com/gothic1remake/mods/37" style="display:inline-flex; align-items:center; gap:9px; font-weight:600; font-size:15px; text-decoration:none; cursor:pointer; border-radius:12px; padding:14px 26px; background:rgba(255,255,255,.025); border:1px solid var(--line2); color:var(--text); transition:border-color .25s, color .25s, transform .2s;" style-hover="border-color:var(--gold); color:var(--gold2); transform:translateY(-2px)">View on Nexus Mods</a>
+      </div>
+
+      <!-- бейджи-факты -->
+      <div style="display:flex; gap:10px; align-items:center; margin-top:26px; flex-wrap:wrap; justify-content:center;">
+        <span style="font-size:12.5px; color:var(--muted); background:rgba(255,255,255,.02); border:1px solid var(--line); padding:6px 13px; border-radius:999px;"><b style="color:var(--green);">✓</b> No .NET install — single portable .exe</span>
+        <span style="font-size:12.5px; color:var(--muted); background:rgba(255,255,255,.02); border:1px solid var(--line); padding:6px 13px; border-radius:999px;">Windows 10 / 11 · 64-bit</span>
+        <span style="font-size:12.5px; color:var(--muted); background:rgba(255,255,255,.02); border:1px solid var(--line); padding:6px 13px; border-radius:999px;">11 languages</span>
+        <span style="font-size:12.5px; color:var(--muted); background:rgba(255,255,255,.02); border:1px solid var(--line); padding:6px 13px; border-radius:999px;">Steam &amp; Epic</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== О ПРОДУКТЕ ====================== -->
+  <section id="about" style="padding:84px 0;">
+    <div data-reveal style="max-width:1120px; margin:0 auto; padding:0 24px; opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);">
+      <!-- эйрбров -->
+      <div style="display:flex; align-items:center; gap:12px; font-size:12px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:16px;"><span style="width:28px; height:1px; background:var(--gold);"></span>Overview</div>
+      <h2 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); letter-spacing:.5px; line-height:1.18; margin:0 0 18px; max-width:780px;">The mod manager built for Gothic 1 Remake</h2>
+      <p style="color:var(--muted); max-width:760px; margin:0; font-size:16px;">Lightweight, fast and fully portable. Drop a mod archive or folder onto the window — G1L detects what kind of mod it is and installs it <span style="color:var(--rose);">exactly where the game expects it</span>. No more digging through game folders by hand. Most managers only handle UE4SS or paks; G1L installs and manages <b style="color:var(--text);">every</b> Gothic 1 Remake mod type — correctly.</p>
+
+      <!-- три карточки-преимущества: вместо эмодзи — порядковые номера в Cinzel -->
+      <div style="display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); margin-top:34px;">
+        <div style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:28px; transition:transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;" style-hover="border-color:var(--line2); transform:translateY(-4px); box-shadow:var(--shadow)">
+          <div style="font-family:'Cinzel',serif; font-weight:700; font-size:18px; color:var(--gold); opacity:.85; margin-bottom:14px;">01</div>
+          <h3 style="font-size:18px; color:var(--text); margin:0 0 8px; font-weight:700;">Drag &amp; drop</h3>
+          <p style="color:var(--muted); margin:0; font-size:14.5px;">Drop <b style="color:var(--text);">.zip / .7z / .rar / .pak</b> or a mod folder onto the window — or pick several at once. G1L routes each to the right place.</p>
+        </div>
+        <div style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:28px; transition:transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;" style-hover="border-color:var(--line2); transform:translateY(-4px); box-shadow:var(--shadow)">
+          <div style="font-family:'Cinzel',serif; font-weight:700; font-size:18px; color:var(--gold); opacity:.85; margin-bottom:14px;">02</div>
+          <h3 style="font-size:18px; color:var(--text); margin:0 0 8px; font-weight:700;">Every mod type</h3>
+          <p style="color:var(--muted); margin:0; font-size:14.5px;">UE4SS Lua &amp; DLL, paks, BP plugins, movie replacements, Engine.ini tweaks, ReShade presets, fyryNy loader &amp; plugins.</p>
+        </div>
+        <div style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:28px; transition:transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;" style-hover="border-color:var(--line2); transform:translateY(-4px); box-shadow:var(--shadow)">
+          <div style="font-family:'Cinzel',serif; font-weight:700; font-size:18px; color:var(--gold); opacity:.85; margin-bottom:14px;">03</div>
+          <h3 style="font-size:18px; color:var(--text); margin:0 0 8px; font-weight:700;">Safe by default</h3>
+          <p style="color:var(--muted); margin:0; font-size:14.5px;">Save backups before launch, removable Engine.ini blocks, reversible toggles — nothing is ever silently destroyed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== СКРИНШОТЫ ====================== -->
+  <section id="screens" style="padding:84px 0; border-top:1px solid rgba(255,255,255,.04);">
+    <div data-reveal style="max-width:1120px; margin:0 auto; padding:0 24px; opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);">
+      <div style="display:flex; align-items:center; gap:12px; font-size:12px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:16px;"><span style="width:28px; height:1px; background:var(--gold);"></span>Gallery</div>
+      <h2 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); letter-spacing:.5px; margin:0 0 14px;">Take a look</h2>
+      <p style="color:var(--muted); max-width:760px; margin:0; font-size:16px;">A dark Gothic interface — stone texture, ember glow, built for the mood of the game.</p>
+
+      <!-- Галерея. Клик по плитке открывает скриншот в лайтбоксе. -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:16px; margin-top:32px;">
+        <figure data-lb style="position:relative; margin:0; border:1px solid var(--line); border-radius:14px; overflow:hidden; cursor:zoom-in; aspect-ratio:16/10; background:repeating-linear-gradient(135deg,var(--panel) 0 14px,var(--panel2) 14px 28px); transition:transform .35s, border-color .35s, box-shadow .35s;" style-hover="border-color:var(--line2); transform:translateY(-3px); box-shadow:var(--shadow)">
+          <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Consolas',monospace; font-size:12px; letter-spacing:.1em; color:var(--dim);">home.png</div>
+          <img src="assets/home.png" alt="Home dashboard" onerror="this.style.display='none'" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+          <figcaption style="position:absolute; left:0; right:0; bottom:0; padding:22px 14px 11px; font-size:13px; color:var(--text); background:linear-gradient(0deg,rgba(8,5,3,.94),transparent);">Home — game card, PLAY, mod counters &amp; last launch</figcaption>
+        </figure>
+        <figure data-lb style="position:relative; margin:0; border:1px solid var(--line); border-radius:14px; overflow:hidden; cursor:zoom-in; aspect-ratio:16/10; background:repeating-linear-gradient(135deg,var(--panel) 0 14px,var(--panel2) 14px 28px); transition:transform .35s, border-color .35s, box-shadow .35s;" style-hover="border-color:var(--line2); transform:translateY(-3px); box-shadow:var(--shadow)">
+          <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Consolas',monospace; font-size:12px; letter-spacing:.1em; color:var(--dim);">mods.png</div>
+          <img src="assets/mods.png" alt="Mods view" onerror="this.style.display='none'" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+          <figcaption style="position:absolute; left:0; right:0; bottom:0; padding:22px 14px 11px; font-size:13px; color:var(--text); background:linear-gradient(0deg,rgba(8,5,3,.94),transparent);">Mods — enabled / available, type badges, update flags</figcaption>
+        </figure>
+        <figure data-lb style="position:relative; margin:0; border:1px solid var(--line); border-radius:14px; overflow:hidden; cursor:zoom-in; aspect-ratio:16/10; background:repeating-linear-gradient(135deg,var(--panel) 0 14px,var(--panel2) 14px 28px); transition:transform .35s, border-color .35s, box-shadow .35s;" style-hover="border-color:var(--line2); transform:translateY(-3px); box-shadow:var(--shadow)">
+          <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Consolas',monospace; font-size:12px; letter-spacing:.1em; color:var(--dim);">config.png</div>
+          <img src="assets/config.png" alt="Config editor" onerror="this.style.display='none'" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+          <figcaption style="position:absolute; left:0; right:0; bottom:0; padding:22px 14px 11px; font-size:13px; color:var(--text); background:linear-gradient(0deg,rgba(8,5,3,.94),transparent);">Built-in config editor — edit mod settings in-app</figcaption>
+        </figure>
+        <figure data-lb style="position:relative; margin:0; border:1px solid var(--line); border-radius:14px; overflow:hidden; cursor:zoom-in; aspect-ratio:16/10; background:repeating-linear-gradient(135deg,var(--panel) 0 14px,var(--panel2) 14px 28px); transition:transform .35s, border-color .35s, box-shadow .35s;" style-hover="border-color:var(--line2); transform:translateY(-3px); box-shadow:var(--shadow)">
+          <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Consolas',monospace; font-size:12px; letter-spacing:.1em; color:var(--dim);">context.png</div>
+          <img src="assets/context.png" alt="Context menu" onerror="this.style.display='none'" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+          <figcaption style="position:absolute; left:0; right:0; bottom:0; padding:22px 14px 11px; font-size:13px; color:var(--text); background:linear-gradient(0deg,rgba(8,5,3,.94),transparent);">Right-click — Nexus links, metadata, tags, folder</figcaption>
+        </figure>
+        <figure data-lb style="position:relative; margin:0; border:1px solid var(--line); border-radius:14px; overflow:hidden; cursor:zoom-in; aspect-ratio:16/10; background:repeating-linear-gradient(135deg,var(--panel) 0 14px,var(--panel2) 14px 28px); transition:transform .35s, border-color .35s, box-shadow .35s;" style-hover="border-color:var(--line2); transform:translateY(-3px); box-shadow:var(--shadow)">
+          <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Consolas',monospace; font-size:12px; letter-spacing:.1em; color:var(--dim);">profiles.png</div>
+          <img src="assets/profiles.png" alt="Profiles" onerror="this.style.display='none'" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+          <figcaption style="position:absolute; left:0; right:0; bottom:0; padding:22px 14px 11px; font-size:13px; color:var(--text); background:linear-gradient(0deg,rgba(8,5,3,.94),transparent);">Profiles — save setups, share with an iskl:// link</figcaption>
+        </figure>
+        <figure data-lb style="position:relative; margin:0; border:1px solid var(--line); border-radius:14px; overflow:hidden; cursor:zoom-in; aspect-ratio:16/10; background:repeating-linear-gradient(135deg,var(--panel) 0 14px,var(--panel2) 14px 28px); transition:transform .35s, border-color .35s, box-shadow .35s;" style-hover="border-color:var(--line2); transform:translateY(-3px); box-shadow:var(--shadow)">
+          <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Consolas',monospace; font-size:12px; letter-spacing:.1em; color:var(--dim);">settings.png</div>
+          <img src="assets/settings.png" alt="Settings" onerror="this.style.display='none'" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+          <figcaption style="position:absolute; left:0; right:0; bottom:0; padding:22px 14px 11px; font-size:13px; color:var(--text); background:linear-gradient(0deg,rgba(8,5,3,.94),transparent);">Settings — UE4SS install/fix, launch options, language</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== ТИПЫ МОДОВ ====================== -->
+  <section id="features" style="padding:84px 0; border-top:1px solid rgba(255,255,255,.04);">
+    <div data-reveal style="max-width:1120px; margin:0 auto; padding:0 24px; opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);">
+      <div style="display:flex; align-items:center; gap:12px; font-size:12px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:16px;"><span style="width:28px; height:1px; background:var(--gold);"></span>Compatibility</div>
+      <h2 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); letter-spacing:.5px; margin:0 0 14px;">One launcher, every mod type</h2>
+      <p style="color:var(--muted); max-width:760px; margin:0; font-size:16px;">G1L installs and manages them all — and puts each exactly where the engine looks for it.</p>
+      <!-- бейджи типов — единый тёплый колорит, без «радуги» -->
+      <div style="display:flex; flex-wrap:wrap; gap:11px; margin-top:30px;">
+        <span style="display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,.02); border:1px solid var(--line2); border-radius:11px; padding:11px 15px; font-size:14px; color:var(--text); transition:border-color .25s;" style-hover="border-color:var(--gold)"><span style="font-size:10.5px; font-weight:800; letter-spacing:.06em; padding:3px 8px; border-radius:6px; border:1px solid currentColor; color:#d8a24a;">LUA</span>UE4SS Lua &amp; DLL scripts</span>
+        <span style="display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,.02); border:1px solid var(--line2); border-radius:11px; padding:11px 15px; font-size:14px; color:var(--text); transition:border-color .25s;" style-hover="border-color:var(--gold)"><span style="font-size:10.5px; font-weight:800; letter-spacing:.06em; padding:3px 8px; border-radius:6px; border:1px solid currentColor; color:#cf8a5a;">PAK</span>Pak mods · safe on/off toggle</span>
+        <span style="display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,.02); border:1px solid var(--line2); border-radius:11px; padding:11px 15px; font-size:14px; color:var(--text); transition:border-color .25s;" style-hover="border-color:var(--gold)"><span style="font-size:10.5px; font-weight:800; letter-spacing:.06em; padding:3px 8px; border-radius:6px; border:1px solid currentColor; color:#c9a96a;">BP</span>BP plugins (SimpleModLoader)</span>
+        <span style="display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,.02); border:1px solid var(--line2); border-radius:11px; padding:11px 15px; font-size:14px; color:var(--text); transition:border-color .25s;" style-hover="border-color:var(--gold)"><span style="font-size:10.5px; font-weight:800; letter-spacing:.06em; padding:3px 8px; border-radius:6px; border:1px solid currentColor; color:#e0b970;">TWEAK</span>Engine.ini tweaks</span>
+        <span style="display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,.02); border:1px solid var(--line2); border-radius:11px; padding:11px 15px; font-size:14px; color:var(--text); transition:border-color .25s;" style-hover="border-color:var(--gold)"><span style="font-size:10.5px; font-weight:800; letter-spacing:.06em; padding:3px 8px; border-radius:6px; border:1px solid currentColor; color:#bfa06a;">RESHADE</span>ReShade presets</span>
+        <span style="display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,.02); border:1px solid var(--line2); border-radius:11px; padding:11px 15px; font-size:14px; color:var(--text); transition:border-color .25s;" style-hover="border-color:var(--gold)"><span style="font-size:10.5px; font-weight:800; letter-spacing:.06em; padding:3px 8px; border-radius:6px; border:1px solid currentColor; color:#a9b07a;">WIN64</span>fyryNy loader &amp; plugins</span>
+        <span style="display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,.02); border:1px solid var(--line2); border-radius:11px; padding:11px 15px; font-size:14px; color:var(--text); transition:border-color .25s;" style-hover="border-color:var(--gold)"><span style="font-size:10.5px; font-weight:800; letter-spacing:.06em; padding:3px 8px; border-radius:6px; border:1px solid currentColor; color:#cf7a64;">DLL</span>UE4SS C++ plugins</span>
+        <span style="display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,.02); border:1px solid var(--line2); border-radius:11px; padding:11px 15px; font-size:14px; color:var(--text); transition:border-color .25s;" style-hover="border-color:var(--gold)"><span style="font-size:10.5px; font-weight:800; letter-spacing:.06em; padding:3px 8px; border-radius:6px; border:1px solid currentColor; color:#c9a96a;">LOADER</span>Movie / intro replacements</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== УСТАНОВКА И УПРАВЛЕНИЕ ====================== -->
+  <section style="padding:84px 0; border-top:1px solid rgba(255,255,255,.04);">
+    <div data-reveal style="max-width:1120px; margin:0 auto; padding:0 24px; opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);">
+      <div style="display:flex; align-items:center; gap:12px; font-size:12px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:16px;"><span style="width:28px; height:1px; background:var(--gold);"></span>Workflow</div>
+      <h2 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); letter-spacing:.5px; margin:0 0 30px;">Install &amp; manage</h2>
+      <ul style="list-style:none; padding:0; margin:0; display:grid; gap:14px;">
+        <li style="padding-left:30px; position:relative; color:var(--text);"><span style="position:absolute; left:0; top:1px; color:var(--gold); font-size:13px;">➤</span><b style="color:var(--text);">Drag-and-drop, or pick files.</b> <span style="color:var(--muted);">Drop archives or a mod folder, or click <b style="color:var(--text);">+</b> to choose several. G1L detects the type and puts it in the right folder.</span></li>
+        <li style="padding-left:30px; position:relative; color:var(--text);"><span style="position:absolute; left:0; top:1px; color:var(--gold); font-size:13px;">➤</span><b style="color:var(--text);">UE4SS done for you.</b> <span style="color:var(--muted);">Installs the correct experimental build for Gothic 1 Remake (regular zip, never zDEV), respects an existing nested install, and can fix a broken one.</span></li>
+        <li style="padding-left:30px; position:relative; color:var(--text);"><span style="position:absolute; left:0; top:1px; color:var(--gold); font-size:13px;">➤</span><b style="color:var(--text);">Pak toggling.</b> <span style="color:var(--muted);">Disable &amp; re-enable pak mods safely — G1L renames the full <code style="color:var(--rose); font-family:'Consolas',monospace; font-size:13px;">.pak/.ucas/.utoc/.sig</code> set; nothing is ever deleted.</span></li>
+        <li style="padding-left:30px; position:relative; color:var(--text);"><span style="position:absolute; left:0; top:1px; color:var(--gold); font-size:13px;">➤</span><b style="color:var(--text);">Engine.ini tweaks done right.</b> <span style="color:var(--muted);">Merged into your real Engine.ini as removable marked blocks. Disable the mod and only its block is removed — your other settings stay.</span></li>
+        <li style="padding-left:30px; position:relative; color:var(--text);"><span style="position:absolute; left:0; top:1px; color:var(--gold); font-size:13px;">➤</span><b style="color:var(--text);">Built-in config editor.</b> <span style="color:var(--muted);">Edit mod settings in the launcher — even values written inside a UE4SS <code style="color:var(--rose); font-family:'Consolas',monospace; font-size:13px;">main.lua</code>, rewriting only the value in place so the script never breaks. A raw text tab is always there too.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ====================== ОБМЕН И АКТУАЛЬНОСТЬ ====================== -->
+  <section style="padding:84px 0; border-top:1px solid rgba(255,255,255,.04);">
+    <div data-reveal style="max-width:1120px; margin:0 auto; padding:0 24px; opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);">
+      <div style="display:flex; align-items:center; gap:12px; font-size:12px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:16px;"><span style="width:28px; height:1px; background:var(--gold);"></span>Profiles &amp; updates</div>
+      <h2 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); letter-spacing:.5px; margin:0 0 30px;">Share &amp; stay current</h2>
+      <div style="display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(320px,1fr));">
+        <div style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:26px; transition:transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;" style-hover="border-color:var(--line2); transform:translateY(-4px); box-shadow:var(--shadow)"><h3 style="font-size:18px; color:var(--text); margin:0 0 8px; font-weight:700;">Mod Packs (.g1lpack)</h3><p style="color:var(--muted); margin:0; font-size:14.5px;">Export your whole setup into one archive — the mod files, load order, enabled state and profile. A friend imports it with one click and gets your exact setup.</p></div>
+        <div style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:26px; transition:transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;" style-hover="border-color:var(--line2); transform:translateY(-4px); box-shadow:var(--shadow)"><h3 style="font-size:18px; color:var(--text); margin:0 0 8px; font-weight:700;">Update checks via Nexus API</h3><p style="color:var(--muted); margin:0; font-size:14.5px;">G1L reads each mod's <b style="color:var(--text);">latest file version</b> on Nexus, so updates show up even when an author forgets to bump the version field. Paste a free personal API key once in Settings.</p></div>
+        <div style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:26px; transition:transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;" style-hover="border-color:var(--line2); transform:translateY(-4px); box-shadow:var(--shadow)"><h3 style="font-size:18px; color:var(--text); margin:0 0 8px; font-weight:700;">Launcher self-update</h3><p style="color:var(--muted); margin:0; font-size:14.5px;">A title-bar chip shows <span style="color:var(--green);">LATEST</span> when you're current, or <span style="color:var(--gold);">UPDATE</span> when a newer G1L is out. Both dismissible.</p></div>
+        <div style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:26px; transition:transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;" style-hover="border-color:var(--line2); transform:translateY(-4px); box-shadow:var(--shadow)"><h3 style="font-size:18px; color:var(--text); margin:0 0 8px; font-weight:700;">Profiles</h3><p style="color:var(--muted); margin:0; font-size:14.5px;">Save mod setups and share any of them with a single <code style="color:var(--rose); font-family:'Consolas',monospace; font-size:13px;">iskl://</code> link.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== БЕЗОПАСНОСТЬ ====================== -->
+  <section style="padding:84px 0; border-top:1px solid rgba(255,255,255,.04);">
+    <div data-reveal style="max-width:1120px; margin:0 auto; padding:0 24px; opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);">
+      <div style="display:flex; align-items:center; gap:12px; font-size:12px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:16px;"><span style="width:28px; height:1px; background:var(--gold);"></span>Protection</div>
+      <h2 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); letter-spacing:.5px; margin:0 0 30px;">Keeps you safe, stays out of your way</h2>
+      <div style="display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(320px,1fr));">
+        <div style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:26px; transition:transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;" style-hover="border-color:var(--line2); transform:translateY(-4px); box-shadow:var(--shadow)"><h3 style="font-size:18px; color:var(--text); margin:0 0 8px; font-weight:700;">Missing dependency warnings</h3><p style="color:var(--muted); margin:0; font-size:14.5px;">Tells you when a mod needs UE4SS, SimpleModLoader, fyryNy's Loader or ReShade — before it silently fails in game.</p></div>
+        <div style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:26px; transition:transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;" style-hover="border-color:var(--line2); transform:translateY(-4px); box-shadow:var(--shadow)"><h3 style="font-size:18px; color:var(--text); margin:0 0 8px; font-weight:700;">Startup health check</h3><p style="color:var(--muted); margin:0; font-size:14.5px;">A yellow banner flags real problems: missing VC++ runtime, a broken UE4SS proxy, or a foreign DLL injector beside the game exe.</p></div>
+        <div style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:26px; transition:transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;" style-hover="border-color:var(--line2); transform:translateY(-4px); box-shadow:var(--shadow)"><h3 style="font-size:18px; color:var(--text); margin:0 0 8px; font-weight:700;">Save backups</h3><p style="color:var(--muted); margin:0; font-size:14.5px;">A backup before every launch, so a bad mod can't cost you your run.</p></div>
+        <div style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:26px; transition:transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;" style-hover="border-color:var(--line2); transform:translateY(-4px); box-shadow:var(--shadow)"><h3 style="font-size:18px; color:var(--text); margin:0 0 8px; font-weight:700;">One-click diagnostics</h3><p style="color:var(--muted); margin:0; font-size:14.5px;">About → Copy diagnostics grabs versions, paths, UE4SS state, mod list and log tail for bug reports.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== КАК ПОЛЬЗОВАТЬСЯ ====================== -->
+  <section id="how" style="padding:84px 0; border-top:1px solid rgba(255,255,255,.04);">
+    <div data-reveal style="max-width:1120px; margin:0 auto; padding:0 24px; opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);">
+      <div style="display:flex; align-items:center; gap:12px; font-size:12px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:16px;"><span style="width:28px; height:1px; background:var(--gold);"></span>Getting started</div>
+      <h2 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); letter-spacing:.5px; margin:0 0 30px;">How to use</h2>
+      <div style="display:grid; gap:14px;">
+        <div style="display:flex; gap:18px; align-items:flex-start;"><div style="flex:0 0 38px; height:38px; border-radius:10px; display:grid; place-items:center; font-family:'Cinzel',serif; font-weight:700; font-size:16px; background:rgba(216,162,74,.12); color:var(--gold2); border:1px solid var(--line2);">1</div><p style="margin:7px 0 0; color:var(--text);">Run <b style="color:var(--text);">ISKLLauncher.App.exe</b> — the game is detected automatically.</p></div>
+        <div style="display:flex; gap:18px; align-items:flex-start;"><div style="flex:0 0 38px; height:38px; border-radius:10px; display:grid; place-items:center; font-family:'Cinzel',serif; font-weight:700; font-size:16px; background:rgba(216,162,74,.12); color:var(--gold2); border:1px solid var(--line2);">2</div><p style="margin:7px 0 0; color:var(--text);">If prompted, install <b style="color:var(--text);">UE4SS</b> from Settings. Lua/DLL mods need it; pak / movie / tweak / preset mods do not.</p></div>
+        <div style="display:flex; gap:18px; align-items:flex-start;"><div style="flex:0 0 38px; height:38px; border-radius:10px; display:grid; place-items:center; font-family:'Cinzel',serif; font-weight:700; font-size:16px; background:rgba(216,162,74,.12); color:var(--gold2); border:1px solid var(--line2);">3</div><p style="margin:7px 0 0; color:var(--text);">Drag a mod archive, <code style="color:var(--rose); font-family:'Consolas',monospace; font-size:13px;">.pak</code>, or folder onto <i>Available mods</i> — or click <b style="color:var(--text);">+</b> to pick files.</p></div>
+        <div style="display:flex; gap:18px; align-items:flex-start;"><div style="flex:0 0 38px; height:38px; border-radius:10px; display:grid; place-items:center; font-family:'Cinzel',serif; font-weight:700; font-size:16px; background:rgba(216,162,74,.12); color:var(--gold2); border:1px solid var(--line2);">4</div><p style="margin:7px 0 0; color:var(--text);">Enable the mods you want and set the order if needed.</p></div>
+        <div style="display:flex; gap:18px; align-items:flex-start;"><div style="flex:0 0 38px; height:38px; border-radius:10px; display:grid; place-items:center; font-family:'Cinzel',serif; font-weight:700; font-size:16px; background:rgba(216,162,74,.12); color:var(--gold2); border:1px solid var(--line2);">5</div><p style="margin:7px 0 0; color:var(--text);">Click the config icon if a mod has editable settings.</p></div>
+        <div style="display:flex; gap:18px; align-items:flex-start;"><div style="flex:0 0 38px; height:38px; border-radius:10px; display:grid; place-items:center; font-family:'Cinzel',serif; font-weight:700; font-size:16px; background:rgba(216,162,74,.12); color:var(--gold2); border:1px solid var(--line2);">6</div><p style="margin:7px 0 0; color:var(--text);">Hit <b style="color:var(--text);">PLAY</b>. Done.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== КУДА УСТАНАВЛИВАЕТСЯ ====================== -->
+  <section style="padding:84px 0; border-top:1px solid rgba(255,255,255,.04);">
+    <div data-reveal style="max-width:1120px; margin:0 auto; padding:0 24px; opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);">
+      <div style="display:flex; align-items:center; gap:12px; font-size:12px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:16px;"><span style="width:28px; height:1px; background:var(--gold);"></span>Reference</div>
+      <h2 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); letter-spacing:.5px; margin:0 0 28px;">Where things go</h2>
+      <div style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:8px 10px; overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:14.5px; min-width:520px;">
+          <tr><th style="text-align:left; padding:12px 16px; border-bottom:1px solid var(--line); color:var(--gold); font-size:12px; text-transform:uppercase; letter-spacing:.06em;">Mod type</th><th style="text-align:left; padding:12px 16px; border-bottom:1px solid var(--line); color:var(--gold); font-size:12px; text-transform:uppercase; letter-spacing:.06em;">Install location</th></tr>
+          <tr><td style="padding:12px 16px; border-bottom:1px solid var(--line);">UE4SS Lua / DLL mods</td><td style="padding:12px 16px; border-bottom:1px solid var(--line);"><code style="color:var(--muted); font-family:'Consolas',monospace; font-size:13px;">...\G1R\Binaries\Win64\Mods\</code></td></tr>
+          <tr><td style="padding:12px 16px; border-bottom:1px solid var(--line);">Pak mods</td><td style="padding:12px 16px; border-bottom:1px solid var(--line);"><code style="color:var(--muted); font-family:'Consolas',monospace; font-size:13px;">...\G1R\Content\Paks\~mods\</code></td></tr>
+          <tr><td style="padding:12px 16px; border-bottom:1px solid var(--line);">SimpleModLoader</td><td style="padding:12px 16px; border-bottom:1px solid var(--line);"><code style="color:var(--muted); font-family:'Consolas',monospace; font-size:13px;">...\G1R\Content\Paks\</code></td></tr>
+          <tr><td style="padding:12px 16px; border-bottom:1px solid var(--line);">BP plugins</td><td style="padding:12px 16px; border-bottom:1px solid var(--line);"><code style="color:var(--muted); font-family:'Consolas',monospace; font-size:13px;">...\G1R\Mods\</code></td></tr>
+          <tr><td style="padding:12px 16px; border-bottom:1px solid var(--line);">Movie replacements</td><td style="padding:12px 16px; border-bottom:1px solid var(--line);"><code style="color:var(--muted); font-family:'Consolas',monospace; font-size:13px;">...\G1R\Content\Movies\</code></td></tr>
+          <tr><td style="padding:12px 16px; border-bottom:1px solid var(--line);">Engine.ini tweaks</td><td style="padding:12px 16px; border-bottom:1px solid var(--line);"><code style="color:var(--muted); font-family:'Consolas',monospace; font-size:13px;">%LOCALAPPDATA%\G1R\Saved\Config\Windows\Engine.ini</code></td></tr>
+          <tr><td style="padding:12px 16px; border-bottom:1px solid var(--line);">ReShade presets</td><td style="padding:12px 16px; border-bottom:1px solid var(--line);"><code style="color:var(--muted); font-family:'Consolas',monospace; font-size:13px;">...\G1R\Binaries\Win64\</code></td></tr>
+          <tr><td style="padding:12px 16px; border-bottom:1px solid var(--line);">fyryNy's Loader</td><td style="padding:12px 16px; border-bottom:1px solid var(--line);"><code style="color:var(--muted); font-family:'Consolas',monospace; font-size:13px;">...\G1R\Binaries\Win64\</code></td></tr>
+          <tr><td style="padding:12px 16px;">fyryNy plugins</td><td style="padding:12px 16px;"><code style="color:var(--muted); font-family:'Consolas',monospace; font-size:13px;">...\G1R\Binaries\Win64\fyryNy_loader\</code></td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== FAQ ====================== -->
+  <section id="faq" style="padding:84px 0; border-top:1px solid rgba(255,255,255,.04);">
+    <div data-reveal style="max-width:1120px; margin:0 auto; padding:0 24px; opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);">
+      <div style="display:flex; align-items:center; gap:12px; font-size:12px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:16px;"><span style="width:28px; height:1px; background:var(--gold);"></span>Help</div>
+      <h2 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); letter-spacing:.5px; margin:0 0 28px;">FAQ</h2>
+      <div>
+        <details style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:13px; padding:4px 20px; margin-bottom:12px;"><summary style="cursor:pointer; font-weight:700; padding:15px 0; list-style:none; color:var(--text);">Updates not showing?</summary><div style="padding:0 0 16px; color:var(--muted);"><ul style="margin:0; padding-left:18px; display:grid; gap:6px;"><li>Update checks need a free Nexus API key — paste it in <b style="color:var(--text);">Settings → Nexus Updates</b> (Nexus: Account → Site preferences → API Keys).</li><li>The mod also needs a Nexus ID. G1L reads it from the original download name; if missing, set it via right-click → <b style="color:var(--text);">Edit Nexus metadata</b>.</li><li>G1L reads the mod's <b style="color:var(--text);">latest file version</b>, so updates show even when the author didn't bump the page version.</li></ul></div></details>
+        <details style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:13px; padding:4px 20px; margin-bottom:12px;"><summary style="cursor:pointer; font-weight:700; padding:15px 0; list-style:none; color:var(--text);">Mods not loading?</summary><div style="padding:0 0 16px; color:var(--muted);"><ul style="margin:0; padding-left:18px; display:grid; gap:6px;"><li>Open <b style="color:var(--text);">Settings → Install / Update UE4SS</b> for Lua/DLL mods, or hit <b style="color:var(--text);">Fix UE4SS</b> if it was installed into the wrong folder.</li><li>Pak, movie, Engine.ini and ReShade preset mods do not need UE4SS.</li><li>BP mods need SimpleModLoader; fyryNy plugins need fyryNy's Loader.</li><li>Watch the yellow banner — G1L checks your setup and tells you what's missing or broken.</li></ul></div></details>
+        <details style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:13px; padding:4px 20px; margin-bottom:12px;"><summary style="cursor:pointer; font-weight:700; padding:15px 0; list-style:none; color:var(--text);">Is it safe? Why does my antivirus flag it?</summary><div style="padding:0 0 16px; color:var(--muted);">G1L ships as a self-contained single-file .NET app. Some antivirus engines flag <i>any</i> single-file executable as “packed” — a known false positive for this format. The launcher only touches your Gothic 1 Remake mod folders. If in doubt, download only from the official pages linked here.</div></details>
+        <details style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:13px; padding:4px 20px; margin-bottom:12px;"><summary style="cursor:pointer; font-weight:700; padding:15px 0; list-style:none; color:var(--text);">Launcher won't open / mods won't drag in?</summary><div style="padding:0 0 16px; color:var(--muted);">Read the <a href="https://www.nexusmods.com/gothic1remake/articles/7" style="color:var(--gold);" style-hover="color:var(--gold2)">Troubleshooting &amp; FAQ</a> first — it covers 95% of issues. Still stuck? Use <b style="color:var(--text);">About → Copy diagnostics</b> and paste it into a comment.</div></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== СООБЩЕСТВО, КОММЕНТАРИИ И ПОДДЕРЖКА ====================== -->
+  <section id="community" style="padding:84px 0; border-top:1px solid rgba(255,255,255,.04);">
+    <div data-reveal style="max-width:1120px; margin:0 auto; padding:0 24px; opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);">
+      <div style="display:flex; align-items:center; gap:12px; font-size:12px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:16px;"><span style="width:28px; height:1px; background:var(--gold);"></span>Community</div>
+      <h2 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); letter-spacing:.5px; margin:0 0 14px;">Comments &amp; support</h2>
+      <p style="color:var(--muted); max-width:760px; margin:0; font-size:16px;">Built by one modder, kept alive by the community. Ask a question, leave a comment, or chip in to keep new features coming.</p>
+
+      <div style="display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); margin-top:32px;">
+        <!-- Комментарии: ведут на вкладку Posts на Nexus, где живёт реальное обсуждение -->
+        <div style="background:linear-gradient(170deg,var(--panel),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:30px; display:flex; flex-direction:column;">
+          <div style="width:46px; height:46px; border-radius:12px; display:grid; place-items:center; background:rgba(216,162,74,.12); border:1px solid var(--line2); margin-bottom:18px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <h3 style="font-size:19px; color:var(--text); margin:0 0 8px; font-weight:700;">Leave a comment</h3>
+          <p style="color:var(--muted); margin:0 0 22px; font-size:14.5px; flex:1;">Questions, bug reports and feedback all live on the Nexus Mods comments tab — the fastest way to reach ISKL and other users.</p>
+          <a href="https://www.nexusmods.com/gothic1remake/mods/37?tab=posts" target="_blank" rel="noopener" style="align-self:flex-start; display:inline-flex; align-items:center; gap:9px; font-weight:600; font-size:15px; text-decoration:none; cursor:pointer; border-radius:12px; padding:12px 22px; background:rgba(255,255,255,.025); border:1px solid var(--line2); color:var(--text); transition:border-color .25s, color .25s, transform .2s;" style-hover="border-color:var(--gold); color:var(--gold2); transform:translateY(-1px)">Open comments on Nexus</a>
+        </div>
+
+        <!-- Разовое пожертвование -->
+        <div style="background:linear-gradient(170deg,rgba(216,162,74,.07),var(--bg2)); border:1px solid var(--line2); border-radius:16px; padding:30px; display:flex; flex-direction:column;">
+          <div style="width:46px; height:46px; border-radius:12px; display:grid; place-items:center; background:rgba(216,162,74,.16); border:1px solid var(--line2); margin-bottom:18px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+          </div>
+          <h3 style="font-size:19px; color:var(--text); margin:0 0 8px; font-weight:700;">Support development</h3>
+          <p style="color:var(--muted); margin:0 0 22px; font-size:14.5px; flex:1;">G1L is free and always will be. A one-time donation helps fund development and future apps — no subscription, no strings.</p>
+          <a href="https://www.donationalerts.com/r/isklgame" target="_blank" rel="noopener" style="align-self:flex-start; display:inline-flex; align-items:center; gap:9px; font-weight:700; font-size:15px; text-decoration:none; cursor:pointer; border-radius:12px; padding:12px 22px; background:linear-gradient(180deg,var(--gold2),var(--gold)); color:#231405; box-shadow:0 10px 28px -10px rgba(216,162,74,.5); transition:transform .2s, filter .2s;" style-hover="filter:brightness(1.06); transform:translateY(-1px)">Make a one-time donation</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== ФИНАЛЬНЫЙ ПРИЗЫВ ====================== -->
+  <section style="padding:96px 0; border-top:1px solid rgba(255,255,255,.04); text-align:center; position:relative; overflow:hidden;">
+    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:600px; height:300px; background:radial-gradient(closest-side, rgba(216,162,74,.1), transparent 70%); pointer-events:none;"></div>
+    <div data-reveal style="position:relative; max-width:1120px; margin:0 auto; padding:0 24px; opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);">
+      <h2 style="font-family:'Cinzel',serif; font-weight:700; font-size:clamp(28px,4vw,46px); letter-spacing:.5px; margin:0 0 14px;">Ready to enter the Colony?</h2>
+      <p style="color:var(--muted); margin:0 auto 28px; font-size:16px;">Free. Portable. No .NET install required.</p>
+      <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+        <a href="download.html" style="display:inline-flex; align-items:center; gap:9px; font-weight:700; font-size:15px; text-decoration:none; cursor:pointer; border-radius:12px; padding:14px 26px; background:linear-gradient(180deg,var(--gold2),var(--gold)); color:#231405; box-shadow:0 12px 34px -10px rgba(216,162,74,.5); transition:transform .2s, filter .2s, box-shadow .2s;" style-hover="filter:brightness(1.06); transform:translateY(-2px); box-shadow:0 18px 44px -10px rgba(216,162,74,.62)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Download G1L</a>
+        <a href="https://www.nexusmods.com/gothic1remake/mods/37" style="display:inline-flex; align-items:center; gap:9px; font-weight:600; font-size:15px; text-decoration:none; cursor:pointer; border-radius:12px; padding:14px 26px; background:rgba(255,255,255,.025); border:1px solid var(--line2); color:var(--text); transition:border-color .25s, color .25s, transform .2s;" style-hover="border-color:var(--gold); color:var(--gold2); transform:translateY(-2px)">Nexus Mods page</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== ПОДВАЛ ====================== -->
+  <footer style="border-top:1px solid var(--line); padding:52px 0 64px; text-align:center; background:var(--bg2);">
+    <div style="max-width:1120px; margin:0 auto; padding:0 24px;">
+      <p style="font-family:'Cinzel',serif; font-weight:700; letter-spacing:1px; margin:0 0 10px; font-size:16px;">By ISKL</p>
+      <p style="color:var(--dim); font-size:13px; max-width:680px; margin:0 auto 24px; line-height:1.7;">Gothic 1 Remake © Alkimia Interactive &amp; THQ Nordic. All trademarks belong to their owners. G1L is an unofficial tool made by ISKL — not affiliated with or endorsed by Alkimia Interactive or THQ Nordic.</p>
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <a href="https://www.nexusmods.com/gothic1remake/mods/37" style="text-decoration:none; cursor:pointer; border-radius:11px; padding:11px 20px; background:rgba(255,255,255,.025); border:1px solid var(--line2); color:var(--text); font-weight:600; font-size:14px; transition:border-color .25s, color .25s;" style-hover="border-color:var(--gold); color:var(--gold2)">Nexus</a>
+        <a href="https://github.com/ISKL23/G1L-Releases" style="text-decoration:none; cursor:pointer; border-radius:11px; padding:11px 20px; background:rgba(255,255,255,.025); border:1px solid var(--line2); color:var(--text); font-weight:600; font-size:14px; transition:border-color .25s, color .25s;" style-hover="border-color:var(--gold); color:var(--gold2)">GitHub</a>
+        <a href="https://boosty.to/iskl" style="text-decoration:none; cursor:pointer; border-radius:11px; padding:11px 20px; background:rgba(255,255,255,.025); border:1px solid var(--line2); color:var(--text); font-weight:600; font-size:14px; transition:border-color .25s, color .25s;" style-hover="border-color:var(--gold); color:var(--gold2)">Boosty</a>
+        <a href="https://www.donationalerts.com/r/isklgame" style="text-decoration:none; cursor:pointer; border-radius:11px; padding:11px 20px; background:rgba(255,255,255,.025); border:1px solid var(--line2); color:var(--text); font-weight:600; font-size:14px; transition:border-color .25s, color .25s;" style-hover="border-color:var(--gold); color:var(--gold2)">Donate</a>
+        <!-- TODO: замените на ваш реальный URL itch.io -->
+        <a href="https://itch.io/" style="text-decoration:none; cursor:pointer; border-radius:11px; padding:11px 20px; background:rgba(255,255,255,.025); border:1px solid var(--line2); color:var(--text); font-weight:600; font-size:14px; transition:border-color .25s, color .25s;" style-hover="border-color:var(--gold); color:var(--gold2)">itch.io</a>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ====================== ЛАЙТБОКС (просмотр скриншота) ====================== -->
+<div id="lb" onclick="this.style.display='none'" style="display:none; position:fixed; inset:0; background:rgba(8,5,3,.95); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:30px; z-index:200; cursor:zoom-out;">
+  <img id="lbimg" src="" alt="" style="max-width:94vw; max-height:90vh; border-radius:12px; border:1px solid var(--line2); box-shadow:var(--shadow);">
+</div>
+
+<script>
+/* Лёгкий ванильный рантайм вместо билдер-движка: hover, прогресс прокрутки, появление секций, лайтбокс. */
+(function(){
+  // 1. style-hover -> применяем при наведении, корректно восстанавливаем исходные инлайн-значения
+  document.querySelectorAll('[style-hover]').forEach(function(el){
+    var decls = el.getAttribute('style-hover').split(';').map(function(s){return s.trim();}).filter(Boolean)
+      .map(function(d){ var i=d.indexOf(':'); return [d.slice(0,i).trim(), d.slice(i+1).trim()]; });
+    var saved = null;
+    el.addEventListener('mouseenter', function(){
+      saved = decls.map(function(p){ return [p[0], el.style.getPropertyValue(p[0])]; });
+      decls.forEach(function(p){ el.style.setProperty(p[0], p[1]); });
+    });
+    el.addEventListener('mouseleave', function(){
+      if (saved) saved.forEach(function(p){ el.style.setProperty(p[0], p[1]); });
+    });
+  });
+
+  // 2. Прогресс прокрутки -> ширина золотой полосы
+  var bar = document.getElementById('scrollbar'), raf = null;
+  window.addEventListener('scroll', function(){
+    if (raf) return;
+    raf = requestAnimationFrame(function(){
+      raf = null;
+      var h = document.documentElement, max = (h.scrollHeight - h.clientHeight) || 1;
+      var top = h.scrollTop || window.scrollY || 0;
+      bar.style.width = Math.min(100, Math.max(0, top/max*100)) + '%';
+    });
+  }, { passive: true });
+
+  // 3. Плавное появление секций
+  var reveals = Array.prototype.slice.call(document.querySelectorAll('[data-reveal]'));
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting){ en.target.style.opacity='1'; en.target.style.transform='none'; io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    reveals.forEach(function(el){ io.observe(el); });
+  } else {
+    reveals.forEach(function(el){ el.style.opacity='1'; el.style.transform='none'; });
+  }
+
+  // 4. Лайтбокс
+  var lb = document.getElementById('lb'), lbimg = document.getElementById('lbimg');
+  document.querySelectorAll('[data-lb]').forEach(function(fig){
+    fig.addEventListener('click', function(){
+      var img = fig.querySelector('img');
+      if (img && img.style.display !== 'none' && img.currentSrc){ lbimg.src = img.currentSrc; lb.style.display='flex'; }
+    });
+  });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') lb.style.display='none'; });
+})();
+</script>
+</body>
+</html>
