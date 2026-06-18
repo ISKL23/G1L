@@ -10,7 +10,7 @@
 <meta property="og:image" content="assets/banner.png">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#100b08">
-<link rel="icon" href="assets/logo.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23100b08'/%3E%3Ctext x='32' y='40' text-anchor='middle' font-family='serif' font-size='22' font-weight='700' fill='%23f0c87f'%3EG1L%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -40,8 +40,8 @@
   <!-- ====================== ШАПКА ====================== -->
   <header style="position:sticky; top:0; z-index:50; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); background:rgba(16,11,8,.72); border-bottom:1px solid var(--line);">
     <div style="max-width:1120px; margin:0 auto; padding:0 24px; display:flex; align-items:center; gap:18px; height:66px;">
-      <a href="index.html" style="display:flex; align-items:center; gap:11px; font-family:'Cinzel',serif; font-weight:700; font-size:19px; letter-spacing:1.5px; color:var(--text); text-decoration:none;">
-        <img src="assets/logo.png" alt="G1L" onerror="this.style.display='none'" style="height:30px; width:auto; filter:drop-shadow(0 2px 8px rgba(0,0,0,.6));">G1L
+      <a href="index.html" style="display:flex; align-items:center; font-family:'Cinzel',serif; font-weight:800; font-size:22px; letter-spacing:2px; color:var(--gold2); text-decoration:none; text-shadow:0 2px 10px rgba(216,162,74,.22), 0 3px 16px rgba(0,0,0,.7);">
+        G1L
       </a>
       <nav style="margin-left:auto; display:flex; gap:26px; align-items:center;">
         <a href="index.html#features" style="color:var(--muted); font-size:14px; font-weight:600; text-decoration:none; transition:color .2s;" style-hover="color:var(--text)">Features</a>
@@ -129,7 +129,7 @@
     <div style="width:62px; height:62px; margin:0 auto 20px; border-radius:16px; display:grid; place-items:center; background:rgba(216,162,74,.12); border:1px solid var(--line2);">
       <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
     </div>
-    <div style="font-size:12px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); margin-bottom:10px;">Your download has started</div>
+    <div style="font-size:12px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); margin-bottom:10px;">Your download starts in <span id="downloadCountdown">3</span>s</div>
     <h3 style="font-family:'Cinzel',serif; font-weight:600; font-size:24px; letter-spacing:.4px; margin:0 0 12px; color:var(--text);">Thank you!</h3>
     <p style="color:var(--muted); margin:0 0 26px; font-size:15px;">G1L is free and always will be. If it saved you time, a one-time donation helps support development &amp; new apps.</p>
     <div style="display:flex; flex-direction:column; gap:12px;">
@@ -155,10 +155,37 @@
     });
   });
 
-  // Клик по «Download» открывает релиз в новой вкладке (через href) и показывает плашку поддержки
+  // Download click: show the support panel first, then redirect to GitHub in the same tab.
   var donate = document.getElementById('donate');
   var dl = document.getElementById('dlbtn');
-  if (dl) dl.addEventListener('click', function(){ donate.style.display = 'flex'; });
+  var downloadTimer = null;
+  var countdownTimer = null;
+  if (dl) dl.addEventListener('click', function(e){
+    e.preventDefault();
+    if (!donate) {
+      window.location.href = dl.href;
+      return;
+    }
+
+    donate.style.display = 'flex';
+
+    var left = 3;
+    var countdown = document.getElementById('downloadCountdown');
+    if (countdown) countdown.textContent = left;
+
+    if (downloadTimer) clearTimeout(downloadTimer);
+    if (countdownTimer) clearInterval(countdownTimer);
+
+    countdownTimer = setInterval(function(){
+      left -= 1;
+      if (countdown) countdown.textContent = Math.max(left, 0);
+      if (left <= 0) clearInterval(countdownTimer);
+    }, 1000);
+
+    downloadTimer = setTimeout(function(){
+      window.location.href = dl.href;
+    }, 3000);
+  });
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape') donate.style.display = 'none'; });
 })();
 </script>
